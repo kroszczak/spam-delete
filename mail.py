@@ -26,6 +26,8 @@ for inbox in emails:
 	imap.login(imap_user, imap_pass)
 	imap.select()
 	tmp, data = imap.search(None, 'ALL')
+	print('\n', imap_user)
+	print('------------------')
 	for num in data[0].split():
 		tmp, data = imap.fetch(num, '(RFC822)')
 		msg = email.message_from_bytes(data[0][1])
@@ -35,13 +37,17 @@ for inbox in emails:
 				subject = subject.decode()
 			except:
 				subject = subject
-		print(subject)
-		input()
-		
+		print(f'\n{subject}')
+		answer = ""
+		while answer not in {'y', 'n', 'b'}: answer = input('delete message? (y for yes, n for no, b to end): ').lower()	
+		if answer == 'y':
+			imap.store(num, "+FLAGS", "\\Deleted")
+		elif answer == 'n':
+			continue
+		elif answer == 'b':
+			break
 		# print('Message %s\n%s\n' % (num, data[0][1]))
-		# imap.store(num, "+FLAGS", "\\Deleted")
-		
-	# imap.expunge()
+	imap.expunge()
 	imap.close()
 	imap.logout()
 
